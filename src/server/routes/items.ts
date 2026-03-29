@@ -31,9 +31,13 @@ export function createItemRoutes(
 ): Hono {
   const app = new Hono();
 
+  const authenticate = auth.requireAuth() as MiddlewareHandler;
   const view = auth.requirePermission('tracker:view') as MiddlewareHandler;
   const edit = auth.requirePermission('tracker:edit') as MiddlewareHandler;
   const admin = auth.requirePermission('tracker:admin') as MiddlewareHandler;
+
+  // Apply auth to all routes — sets session on context before permission checks
+  app.use('*', authenticate);
 
   // ── List items ─────────────────────────────────────────────────────────
   app.get('/', view, (c) => {

@@ -19,12 +19,15 @@ interface DatabaseClient {
 export function createSettingsRoutes(
   db: DatabaseClient,
   tenantId: string,
-  auth: { requirePermission(p: string): unknown },
+  auth: { requireAuth(): unknown; requirePermission(p: string): unknown },
 ): Hono {
   const app = new Hono();
 
+  const authenticate = auth.requireAuth() as MiddlewareHandler;
   const view = auth.requirePermission('tracker:view') as MiddlewareHandler;
   const admin = auth.requirePermission('tracker:admin') as MiddlewareHandler;
+
+  app.use('*', authenticate);
 
   app.get('/', view, (c) => {
     let settings = db.prepare(

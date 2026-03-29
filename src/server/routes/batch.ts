@@ -22,11 +22,14 @@ interface DatabaseClient {
 export function createBatchRoutes(
   db: DatabaseClient,
   tenantId: string,
-  auth: { requirePermission(p: string): unknown },
+  auth: { requireAuth(): unknown; requirePermission(p: string): unknown },
 ): Hono {
   const app = new Hono();
 
+  const authenticate = auth.requireAuth() as MiddlewareHandler;
   const admin = auth.requirePermission('tracker:admin') as MiddlewareHandler;
+
+  app.use('*', authenticate);
 
   // ── Daily digest — summarise recent activity ───────────────────────────
   app.post('/daily-digest', admin, (c) => {
