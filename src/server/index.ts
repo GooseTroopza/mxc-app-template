@@ -239,6 +239,13 @@ export function createTrackerApp(
     });
   });
 
+  // ── Global auth — all routes below require authentication ──────────────
+  // requireAuth() sets c.get('session') from the MXC cookie/Bearer token.
+  // Individual routes then check permissions via requirePermission().
+  app.use('/items/*', auth.requireAuth() as import('hono').MiddlewareHandler);
+  app.use('/settings/*', auth.requireAuth() as import('hono').MiddlewareHandler);
+  app.use('/batch/*', auth.requireAuth() as import('hono').MiddlewareHandler);
+
   // ── API routes ─────────────────────────────────────────────────────────
   app.route('/items', createItemRoutes(db, tenantId, auth));
   app.route('/settings', createSettingsRoutes(db, tenantId, auth));
