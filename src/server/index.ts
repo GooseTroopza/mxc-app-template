@@ -222,7 +222,7 @@ export function createTrackerApp(
       let nextCalled = false;
       await authMiddleware(c, async () => { nextCalled = true; });
       authResult = nextCalled ? 'PASSED' : 'BLOCKED (next not called)';
-      try { sessionData = c.get('session'); } catch { sessionData = 'no session'; }
+      try { sessionData = (c as any).get('session'); } catch { sessionData = 'no session'; }
     } catch (err) {
       authResult = 'THREW: ' + (err instanceof Error ? err.message : String(err));
     }
