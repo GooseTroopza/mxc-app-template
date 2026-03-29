@@ -209,6 +209,24 @@ export function createTrackerApp(
     })
   );
 
+  // ── Debug route (REMOVE IN PRODUCTION) ─────────────────────────────────
+  app.get('/debug/auth', (c) => {
+    const cookie = c.req.header('cookie') ?? 'NO COOKIE HEADER';
+    const hasMxcAccess = cookie.includes('mxc_access');
+    const authHeader = c.req.header('authorization') ?? 'NO AUTH HEADER';
+    return c.json({
+      ok: true,
+      debug: {
+        hasCookieHeader: cookie !== 'NO COOKIE HEADER',
+        hasMxcAccessCookie: hasMxcAccess,
+        cookieLength: cookie.length,
+        hasAuthorizationHeader: authHeader !== 'NO AUTH HEADER',
+        url: c.req.url,
+        method: c.req.method,
+      },
+    });
+  });
+
   // ── API routes ─────────────────────────────────────────────────────────
   app.route('/items', createItemRoutes(db, tenantId, auth));
   app.route('/settings', createSettingsRoutes(db, tenantId, auth));
