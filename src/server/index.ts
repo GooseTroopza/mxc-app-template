@@ -210,19 +210,31 @@ export function createTrackerApp(
   );
 
   // ── Debug route (REMOVE IN PRODUCTION) ─────────────────────────────────
-  app.get('/debug/auth', (c) => {
+  app.get('/debug/auth', async (c) => {
     const cookie = c.req.header('cookie') ?? 'NO COOKIE HEADER';
     const hasMxcAccess = cookie.includes('mxc_access');
-    const authHeader = c.req.header('authorization') ?? 'NO AUTH HEADER';
+
+    // Try running requireAuth manually to see what happens
+    let authResult = 'not tested';
+    let sessionData: unknown = null;
+    try {
+      const authMiddleware = auth.requireAuth() as (c: unknown, next: () => Promise<void>) => Promise<unknown>;
+      let nextCalled = false;
+      await authMiddleware(c, async () => { nextCalled = true; });
+      authResult = nextCalled ? 'PASSED' : 'BLOCKED (next not called)';
+      try { sessionData = c.get('session'); } catch { sessionData = 'no session'; }
+    } catch (err) {
+      authResult = 'THREW: ' + (err instanceof Error ? err.message : String(err));
+    }
+
     return c.json({
       ok: true,
       debug: {
-        hasCookieHeader: cookie !== 'NO COOKIE HEADER',
         hasMxcAccessCookie: hasMxcAccess,
         cookieLength: cookie.length,
-        hasAuthorizationHeader: authHeader !== 'NO AUTH HEADER',
+        authResult,
+        session: sessionData,
         url: c.req.url,
-        method: c.req.method,
       },
     });
   });
