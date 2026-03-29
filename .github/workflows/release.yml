@@ -1,0 +1,49 @@
+# Release workflow — builds server + client, packages into app.tar.gz
+# Triggered on version tags: git tag v1.0.0 && git push --tags
+# MXC installs from the app.tar.gz asset on the release.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build server
+        run: npm run build:server
+
+      - name: Build client (MXC shell entry)
+        run: npm run build:mxc-client
+
+      - name: Verify dist/index.js exists
+        run: |
+          test -f dist/index.js || (echo "ERROR: dist/index.js not found" && exit 1)
+          test -f dist/mxc-client/index.js || (echo "ERROR: dist/mxc-client/index.js not found" && exit 1)
+          echo "✅ Both server and client bundles built"
+
+      # IMPORTANT: Use a named directory (not '.') for BusyBox tar compatibility.
+      # MXC's installer uses tar --strip-components=1 which behaves differently
+      # with ./ prefixed entries on Alpine Linux's BusyBox tar vs GNU tar.
+      - name: Create release tarball
+        run: mkdir -p _release/app && cp -r dist package.json manifest.json _release/app/ && tar -czf app.tar.gz -C _release app
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app.tar.gz
+          generate_release_notes: true

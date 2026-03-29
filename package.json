@@ -1,0 +1,29 @@
+{
+  "name": "mxc-app-tracker",
+  "version": "1.0.0",
+  "description": "MXC App Template — reference implementation demonstrating all platform capabilities",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:mxc-client": "vite build --config vite.config.mxc.ts",
+    "build": "npm run build:server && npm run build:mxc-client",
+    "dev": "tsc --project tsconfig.server.json --watch",
+    "typecheck": "tsc --noEmit --project tsconfig.server.json"
+  },
+  "dependencies": {
+    "hono": "^4.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@tanstack/react-query": "^5.95.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-router-dom": "^6.28.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

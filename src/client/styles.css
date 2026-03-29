@@ -1,0 +1,10 @@
+/* MXC App Styles — Tailwind v4 */
+@import "tailwindcss";
+
+/*
+ * DO NOT add base styles, CSS resets, or body/html/:root rules here.
+ * The MXC shell provides those. This file is for component-scoped styles only.
+ *
+ * When this file is imported in mxc-entry.tsx, Tailwind utilities are available
+ * but base/preflight styles come from the shell.
+ */
